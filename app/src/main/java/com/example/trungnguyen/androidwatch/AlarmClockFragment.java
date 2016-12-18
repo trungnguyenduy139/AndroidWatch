@@ -34,8 +34,29 @@ public class AlarmClockFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View mView = LayoutInflater.from(getContext()).inflate(R.layout.alarm_clock_fragment, container, false);
         alarmTimes = new ArrayList<>();
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
+        alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
         lvAlarm = (ListView) mView.findViewById(R.id.lvAlarm);
         adapter = new AlarmClockAdapter(getActivity(), R.layout.alarm_clock_item, alarmTimes);
+        lvAlarm.setAdapter(adapter);
         return mView;
     }
 
@@ -47,7 +68,7 @@ public class AlarmClockFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.setting_alarm_clock:
+            case R.id.edit_alarm_clock:
                 Toast.makeText(getActivity(), "Alarm clock fragment setting menu", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.add_new_alarm_clock:

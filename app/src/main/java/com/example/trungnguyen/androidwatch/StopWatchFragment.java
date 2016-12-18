@@ -39,6 +39,8 @@ public class StopWatchFragment extends Fragment {
     int lapIndex = 1;
     boolean isLapButtonClicked = false;
     Handler lapHandler;
+    Runnable runnable;
+    Runnable lapRunnable;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,9 +57,9 @@ public class StopWatchFragment extends Fragment {
         addClickEvents();
         //12/18/2016 nếu bạn gọi hàm runTimer trong Start button process,
         // mỗi lần click start button 1 post mới sẻ đc gọi, và sẻ có nhiều post chạy song song với nhau
-        runHoursTimer();
-        runTimer();
-        runLapTimer();
+//        runHoursTimer();
+//        runTimer();
+//        runLapTimer();
         return mView;
     }
 
@@ -67,6 +69,34 @@ public class StopWatchFragment extends Fragment {
         lapTimeList = new ArrayList<>();
         adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, lapTimeList);
         lvStopWatch.setAdapter(adapter);
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Call run handler");
+                setJiffyTimer();
+                if (isRunning)
+                    mJiffy++;
+                handler.postDelayed(this, 10);
+            }
+        };
+        lapRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Call handler lap timer");
+                setLapJiffyTimer();
+                if (isRunning && isLapButtonClicked)
+                    mLapJiffy++;
+                lapHandler.postDelayed(this, 10);
+            }
+        };
+    }
+
+    private void setLapJiffyTimer() {
+        int minutes = mLapJiffy / 6000;
+        int seconds = (mLapJiffy % 6000) / 100;
+        int jiffy = mLapJiffy % 100;
+        lapTime = String.format("%02d:%02d:%02d", minutes, seconds, jiffy);
+        tvLapTimer.setText(lapTime);
     }
 
     private void addClickEvents() {
@@ -110,6 +140,9 @@ public class StopWatchFragment extends Fragment {
         }
         mLapJiffy = 0;
         isLapButtonClicked = true;
+        if (lapHandler != null)
+            lapHandler.removeCallbacks(lapRunnable);
+        runLapTimer();
     }
 
     private void resetProcess() {
@@ -120,16 +153,28 @@ public class StopWatchFragment extends Fragment {
         isRunning = false;
         mSeconds = 0;
         mJiffy = 0;
+        setJiffyTimer();
         mLapJiffy = 0;
+        setLapJiffyTimer();
         lapTimeList.clear();
         adapter.notifyDataSetChanged();
         Log.d(TAG, "CALL RESET PROCESS");
+    }
+
+    private void setJiffyTimer() {
+        int minutes = mJiffy / 6000;
+        int seconds = (mJiffy % 6000) / 100;
+        int jiffy = mJiffy % 100;
+        time = String.format("%02d:%02d:%02d", minutes, seconds, jiffy);
+        tvTimer.setText(time);
     }
 
     private void stopProcess() {
         btReset.setVisibility(View.VISIBLE);
         btLap.setVisibility(View.INVISIBLE);
         isRunning = false;
+        handler.removeCallbacks(runnable);
+        lapHandler.removeCallbacks(lapRunnable);
         Log.d(TAG, "CALL STOP PROCESS");
     }
 
@@ -137,6 +182,7 @@ public class StopWatchFragment extends Fragment {
         btStart.setVisibility(View.INVISIBLE);
         btStop.setVisibility(View.VISIBLE);
         isRunning = true;
+        runTimer();
         Log.d(TAG, "CALL START PROCESS");
     }
 
@@ -169,38 +215,43 @@ public class StopWatchFragment extends Fragment {
     }
 
     public void runTimer() {
+//        handler = new Handler();
+//        handler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                Log.d(TAG, "Call run handler");
+//                int minutes = mJiffy / 6000;
+//                int seconds = (mJiffy % 6000) / 100;
+//                int jiffy = mJiffy % 100;
+//                time = String.format("%02d:%02d:%02d", minutes, seconds, jiffy);
+//                tvTimer.setText(time);
+//                if (isRunning)
+//                    mJiffy++;
+//                handler.postDelayed(this, 10);
+//            }
+//        });
         handler = new Handler();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Call run handler");
-                int minutes = mJiffy / 6000;
-                int seconds = (mJiffy % 6000) / 100;
-                int jiffy = mJiffy % 100;
-                time = String.format("%02d:%02d:%02d", minutes, seconds, jiffy);
-                tvTimer.setText(time);
-                if (isRunning)
-                    mJiffy++;
-                handler.postDelayed(this, 10);
-            }
-        });
+        handler.post(runnable);
     }
 
     private void runLapTimer() {
+//        lapHandler = new Handler();
+//        lapHandler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                Log.d(TAG, "Call handler lap timer");
+//                int minutes = mLapJiffy / 6000;
+//                int seconds = (mLapJiffy % 6000) / 100;
+//                int jiffy = mLapJiffy % 100;
+//                lapTime = String.format("%02d:%02d:%02d", minutes, seconds, jiffy);
+//                tvLapTimer.setText(lapTime);
+//                if (isRunning && isLapButtonClicked)
+//                    mLapJiffy++;
+//                lapHandler.postDelayed(this, 10);
+//            }
+//        });
         lapHandler = new Handler();
-        lapHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                int minutes = mLapJiffy / 6000;
-                int seconds = (mLapJiffy % 6000) / 100;
-                int jiffy = mLapJiffy % 100;
-                lapTime = String.format("%02d:%02d:%02d", minutes, seconds, jiffy);
-                tvLapTimer.setText(lapTime);
-                if (isRunning && isLapButtonClicked)
-                    mLapJiffy++;
-                lapHandler.postDelayed(this, 10);
-            }
-        });
+        lapHandler.post(lapRunnable);
     }
 
     @Override

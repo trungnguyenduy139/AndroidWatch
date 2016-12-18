@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class AlarmClockAdapter extends ArrayAdapter<AlarmTime> {
     List<AlarmTime> list;
-
+    AlarmViewHolder holder;
     public AlarmClockAdapter(Context context, int resource, List<AlarmTime> objects) {
         super(context, resource, objects);
         list = objects;
@@ -23,7 +23,6 @@ public class AlarmClockAdapter extends ArrayAdapter<AlarmTime> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        AlarmViewHolder holder;
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.alarm_clock_item, parent, false);
             holder = new AlarmViewHolder();
@@ -33,10 +32,10 @@ public class AlarmClockAdapter extends ArrayAdapter<AlarmTime> {
             convertView.setTag(holder);
         } else {
             holder = (AlarmViewHolder) convertView.getTag();
-            holder.tvAlarmTime.setText(list.get(position).getTime());
-            holder.tvAlarmContent.setText(list.get(position).getContent());
-            holder.swAlarm.setChecked(list.get(position).isEnable);
         }
+        holder.tvAlarmTime.setText(list.get(position).getTime());
+        holder.tvAlarmContent.setText(list.get(position).getContent());
+        holder.swAlarm.setChecked(list.get(position).isEnable);
         return convertView;
     }
 

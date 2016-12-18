@@ -8,8 +8,8 @@
         android:orderInCategory="100">
     </item>
     <item
-        android:id="@+id/setting_alarm_clock"
-        android:title="Setting"
+        android:id="@+id/edit_alarm_clock"
+        android:title="Edit"
         android:orderInCategory="101">
     </item>
 </menu>
