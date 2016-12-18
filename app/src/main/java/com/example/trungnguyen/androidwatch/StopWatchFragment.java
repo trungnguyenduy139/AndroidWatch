@@ -6,12 +6,16 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -36,6 +40,12 @@ public class StopWatchFragment extends Fragment {
     boolean isLapButtonClicked = false;
     Handler lapHandler;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -46,7 +56,6 @@ public class StopWatchFragment extends Fragment {
         //12/18/2016 nếu bạn gọi hàm runTimer trong Start button process,
         // mỗi lần click start button 1 post mới sẻ đc gọi, và sẻ có nhiều post chạy song song với nhau
         runHoursTimer();
-        ;
         runTimer();
         runLapTimer();
         return mView;
@@ -192,5 +201,19 @@ public class StopWatchFragment extends Fragment {
                 lapHandler.postDelayed(this, 10);
             }
         });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.stopwatch_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.setting_stopwatch:
+                Toast.makeText(getActivity(), "Stopwatch fragment setting menu", Toast.LENGTH_SHORT).show();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
