@@ -7,14 +7,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class SetupAlarmActivity extends AppCompatActivity
         implements TimePicker.OnTimeChangedListener, View.OnClickListener {
@@ -47,15 +53,18 @@ public class SetupAlarmActivity extends AppCompatActivity
         timePicker.setOnTimeChangedListener(this);
     }
 
-    private String getTimeMode() {
-        String timeMode = "";
-        Calendar datetime = Calendar.getInstance();
+    private String getTimeMode(int hour) {
+        //Long version
+//        Calendar calendar = Calendar.getInstance();
+//        if (calendar.get(Calendar.AM_PM) == Calendar.AM)
+//            return "AM";
+//        else return "PM";
 
-        if (datetime.get(Calendar.AM_PM) == Calendar.AM)
-            timeMode = "AM";
-        else if (datetime.get(Calendar.AM_PM) == Calendar.PM)
-            timeMode = "PM";
-        return timeMode;
+        // Sort version
+        return Calendar.getInstance().get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM";
+//        if (hour > 12)
+//            return "PM";
+//        else return "AM";
     }
 
     private void addControls() {
@@ -70,19 +79,32 @@ public class SetupAlarmActivity extends AppCompatActivity
     @Override
     public void onTimeChanged(TimePicker timePicker, int currentHour, int currentMinute) {
         isTimeChange = true;
+        // currentHour và currentMinute trong onTimeChanged lun trả về giá trị thời gian
+        // ở mode 24h vì thế ta cần convert sang mode 12h với SimpleDateFormat
         Log.d(TAG, "TIME CHANGE " + currentHour + " " + currentMinute);
-        String timeMode = getTimeMode();
-        String strTime = String.format("%d:%02d " + timeMode, currentHour, currentMinute);
-        alarm[0] = new AlarmTime(strTime, true, etContent.getText().toString());
+        String mode12HourTime = formatTime(currentHour, currentMinute);
+        alarm[0] = new AlarmTime(mode12HourTime, true, etContent.getText().toString());
+    }
+
+    private String formatTime(int currentHour, int currentMinute) {
+        SimpleDateFormat format24Hour = new SimpleDateFormat("hh:mm");
+        String mode24HourTime = String.valueOf(currentHour) + ":" + String.valueOf(currentMinute);
+        Date date = null;
+        try {
+            date = format24Hour.parse(mode24HourTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        SimpleDateFormat format12Hour = new SimpleDateFormat("h:mm a");
+        return format12Hour.format(date);
     }
 
     @Override
     public void onClick(View view) {
         if (view == btSubmit) {
             if (!isTimeChange) {
-                String timeMode = getTimeMode();
-                String strTime = String.format("%d:%02d " + timeMode, timePicker.getCurrentHour(), timePicker.getCurrentMinute());
-                alarm[0] = new AlarmTime(strTime, true, etContent.getText().toString());
+                String mode12HourTime = formatTime(timePicker.getCurrentHour(), timePicker.getCurrentMinute());
+                alarm[0] = new AlarmTime(mode12HourTime, true, etContent.getText().toString());
             }
             Intent intent = new Intent();
             intent.putExtra(SETUP_ALARM, alarm[0]);
