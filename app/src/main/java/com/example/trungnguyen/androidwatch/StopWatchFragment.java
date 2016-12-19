@@ -27,7 +27,7 @@ public class StopWatchFragment extends Fragment {
     Button btStart, btStop, btReset, btLap;
     ListView lvStopWatch;
     TextView tvTimer, tvLapTimer;
-    private int mSeconds = 0;
+    //    private int mSeconds = 0;
     private int mJiffy = 0;
     boolean isRunning;
     private Handler handler;
@@ -89,32 +89,26 @@ public class StopWatchFragment extends Fragment {
                 lapHandler.postDelayed(this, 10);
             }
         };
-    }
-
-    private void setLapJiffyTimer() {
-        int minutes = mLapJiffy / 6000;
-        int seconds = (mLapJiffy % 6000) / 100;
-        int jiffy = mLapJiffy % 100;
-        lapTime = String.format("%02d:%02d:%02d", minutes, seconds, jiffy);
-        tvLapTimer.setText(lapTime);
+        tvTimer.setText("00:00:00");
+        tvLapTimer.setText("00:00:00");
     }
 
     private void addClickEvents() {
-        // TODO: Start button clicked 
+        // TODO: Start button clicked
         btStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startProcess();
             }
         });
-        // TODO: Stop button clicked 
+        // TODO: Stop button clicked
         btStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 stopProcess();
             }
         });
-        // TODO: Reset button clicked 
+        // TODO: Reset button clicked
         btReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -128,6 +122,32 @@ public class StopWatchFragment extends Fragment {
                 lapProcess();
             }
         });
+    }
+
+    private void addControls(View v) {
+        btReset = (Button) v.findViewById(R.id.btReset);
+        btStart = (Button) v.findViewById(R.id.btStart);
+        btStop = (Button) v.findViewById(R.id.btStop);
+        btLap = (Button) v.findViewById(R.id.btLap);
+        lvStopWatch = (ListView) v.findViewById(R.id.lvStopWatch);
+        tvTimer = (TextView) v.findViewById(R.id.tvTimer);
+        tvLapTimer = (TextView) v.findViewById(R.id.tvLapTimer);
+    }
+
+    private void setLapJiffyTimer() {
+        int minutes = mLapJiffy / 6000;
+        int seconds = (mLapJiffy % 6000) / 100;
+        int jiffy = mLapJiffy % 100;
+        lapTime = String.format("%02d:%02d:%02d", minutes, seconds, jiffy);
+        tvLapTimer.setText(lapTime);
+    }
+
+    private void setJiffyTimer() {
+        int minutes = mJiffy / 6000;
+        int seconds = (mJiffy % 6000) / 100;
+        int jiffy = mJiffy % 100;
+        time = String.format("%02d:%02d:%02d", minutes, seconds, jiffy);
+        tvTimer.setText(time);
     }
 
     private void lapProcess() {
@@ -151,7 +171,7 @@ public class StopWatchFragment extends Fragment {
         btReset.setVisibility(View.INVISIBLE);
         btLap.setVisibility(View.VISIBLE);
         isRunning = false;
-        mSeconds = 0;
+//        mSeconds = 0;
         mJiffy = 0;
         setJiffyTimer();
         mLapJiffy = 0;
@@ -161,20 +181,13 @@ public class StopWatchFragment extends Fragment {
         Log.d(TAG, "CALL RESET PROCESS");
     }
 
-    private void setJiffyTimer() {
-        int minutes = mJiffy / 6000;
-        int seconds = (mJiffy % 6000) / 100;
-        int jiffy = mJiffy % 100;
-        time = String.format("%02d:%02d:%02d", minutes, seconds, jiffy);
-        tvTimer.setText(time);
-    }
-
     private void stopProcess() {
         btReset.setVisibility(View.VISIBLE);
         btLap.setVisibility(View.INVISIBLE);
         isRunning = false;
         handler.removeCallbacks(runnable);
-        lapHandler.removeCallbacks(lapRunnable);
+        if (lapHandler != null)
+            lapHandler.removeCallbacks(lapRunnable);
         Log.d(TAG, "CALL STOP PROCESS");
     }
 
@@ -186,33 +199,23 @@ public class StopWatchFragment extends Fragment {
         Log.d(TAG, "CALL START PROCESS");
     }
 
-    private void addControls(View v) {
-        btReset = (Button) v.findViewById(R.id.btReset);
-        btStart = (Button) v.findViewById(R.id.btStart);
-        btStop = (Button) v.findViewById(R.id.btStop);
-        btLap = (Button) v.findViewById(R.id.btLap);
-        lvStopWatch = (ListView) v.findViewById(R.id.lvStopWatch);
-        tvTimer = (TextView) v.findViewById(R.id.tvTimer);
-        tvLapTimer = (TextView) v.findViewById(R.id.tvLapTimer);
-    }
-
-    public void runHoursTimer() {
-        final Handler handler = new Handler();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Call run handler");
-                int hours = mSeconds / 3600;
-                int minutes = (mSeconds % 3600) / 60;
-                int secs = mSeconds % 60;
-                time = String.format("%d:%02d:%02d", hours, minutes, secs);
-                tvTimer.setText(time);
-                if (isRunning)
-                    mSeconds++;
-                handler.postDelayed(this, 1000);
-            }
-        });
-    }
+//    public void runHoursTimer() {
+//        final Handler handler = new Handler();
+//        handler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                Log.d(TAG, "Call run handler");
+//                int hours = mSeconds / 3600;
+//                int minutes = (mSeconds % 3600) / 60;
+//                int secs = mSeconds % 60;
+//                time = String.format("%d:%02d:%02d", hours, minutes, secs);
+//                tvTimer.setText(time);
+//                if (isRunning)
+//                    mSeconds++;
+//                handler.postDelayed(this, 1000);
+//            }
+//        });
+//    }
 
     public void runTimer() {
 //        handler = new Handler();
