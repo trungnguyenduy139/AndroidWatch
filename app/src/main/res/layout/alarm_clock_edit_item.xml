@@ -32,7 +32,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:id="@+id/btDel"
-        android:src="@drawable/abc_ic_clear_mtrl_alpha"
+        android:src="@android:drawable/ic_menu_delete"
         android:layout_alignRight="@+id/hr"
         android:layout_centerVertical="true"
         android:layout_alignEnd="@+id/hr" />

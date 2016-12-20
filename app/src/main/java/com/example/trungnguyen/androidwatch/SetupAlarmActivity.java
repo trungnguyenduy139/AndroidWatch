@@ -30,6 +30,7 @@ public class SetupAlarmActivity extends AppCompatActivity
     private static final String TAG = SetupAlarmActivity.class.getSimpleName();
     public static final String SETUP_ALARM = "setup_alarm";
     public static final int RESULT_CODE = 200;
+    public static final String EDIT_ALARM_POSITION = "edit_alarm_position";
     LinearLayout soundPanel;
     ImageView btSubmit, btCancel;
     EditText etContent;
@@ -37,6 +38,8 @@ public class SetupAlarmActivity extends AppCompatActivity
     TextView chosenSound;
     AlarmTime[] alarm;
     boolean isTimeChanged = false;
+    int requestCode;
+    int position;
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override
@@ -49,6 +52,7 @@ public class SetupAlarmActivity extends AppCompatActivity
 // SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
 // a general rule, you should design your app to hide the status bar whenever you
 // hide the navigation bar.
+        requestCode = getIntent().getIntExtra(AlarmClockFragment.SEND_REQUEST_CODE, 0);
         alarm = new AlarmTime[1];
         Log.d(TAG, String.valueOf(timePicker.getCurrentHour()));
         Log.d(TAG, String.valueOf(timePicker.getCurrentMinute()));
@@ -59,6 +63,14 @@ public class SetupAlarmActivity extends AppCompatActivity
         slide.excludeTarget(decor.findViewById(actionBarId), true);
         slide.excludeTarget(android.R.id.navigationBarBackground, true);
         getWindow().setEnterTransition(slide);
+        if (RESULT_CODE == AlarmClockFragment.REQUEST_CODE_2) {
+            position = getIntent().getIntExtra("POSITION", -1);
+            alarm[0] = getIntent().getParcelableExtra("ALARM");
+            String[] currentTime = convertTimeTo24HourMode();
+            timePicker.setCurrentHour(Integer.valueOf(currentTime[0]));
+            timePicker.setCurrentMinute(Integer.valueOf(currentTime[1]));
+            etContent.setText(alarm[0].getContent());
+        }
     }
 
     private void addEvents() {
@@ -113,6 +125,23 @@ public class SetupAlarmActivity extends AppCompatActivity
         return format12Hour.format(date);
     }
 
+    private String[] convertTimeTo24HourMode() {
+        SimpleDateFormat format12Hour = new SimpleDateFormat("h:mm a");
+        String mode12HourTime = alarm[position].getTime();
+        Date date = null;
+        try {
+            date = format12Hour.parse(mode12HourTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        SimpleDateFormat format24Hour = new SimpleDateFormat("hh:mm");
+        String[] currentTime = new String[2];
+        currentTime = format24Hour.format(date).split(":");
+        //format24Hour.format(date) sẻ trả về kiểu String dạng ví dụ "10:50"
+        //ta cần split để lấy đc hai chuỗi "10" và "50"
+        return currentTime;
+    }
+
     @Override
     public void onClick(View view) {
         if (view == btSubmit) {
@@ -122,6 +151,7 @@ public class SetupAlarmActivity extends AppCompatActivity
             }
             Intent intent = new Intent();
             intent.putExtra(SETUP_ALARM, alarm[0]);
+            intent.putExtra(EDIT_ALARM_POSITION, position);
             setResult(RESULT_CODE, intent);
             onBackPressed();
         } else if (view == btCancel) {

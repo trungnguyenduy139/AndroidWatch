@@ -30,12 +30,16 @@ import java.util.List;
 public class AlarmClockFragment extends Fragment {
     private static final String ALARM_TIME_LAST_STATE = "alarm_time_last_state";
     private static final String TAG = AlarmClockFragment.class.getSimpleName();
-    private static final int REQUEST_CODE_1 = 99;
-    private static final int REQUEST_CODE_2 = 100;
+    public static final int REQUEST_CODE_1 = 99;
+    public static final int REQUEST_CODE_2 = 100;
+    public static final String SEND_REQUEST_CODE = "send_request_code";
     List<AlarmTime> alarmTimes;
     AlarmClockAdapter adapter;
     RecyclerView rvAlarm;
     Activity mActivity;
+    private boolean isExitModeOpen = false;
+    Menu mMenu;
+    AlarmClockEditAdapter adapterEdit;
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,18 +70,6 @@ public class AlarmClockFragment extends Fragment {
             alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
             alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
             alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
         }
         rvAlarm = (RecyclerView) mView.findViewById(R.id.rvAlarm);
         adapter = new AlarmClockAdapter(alarmTimes);
@@ -96,6 +88,7 @@ public class AlarmClockFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.alarm_clock_menu, menu);
+        mMenu = menu;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -104,24 +97,48 @@ public class AlarmClockFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.add_new_alarm_clock:
                 Intent iAddAlarm = new Intent(mActivity, SetupAlarmActivity.class);
+                iAddAlarm.putExtra(SEND_REQUEST_CODE, REQUEST_CODE_1);
                 // TODO: 12/19/2016 Ko thể gọi mActivity.startActivityForResult trong fragment, vì sẻ ko gọi đc hàm onActivityResult
                 ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation
                         (getActivity());
                 startActivityForResult(iAddAlarm, REQUEST_CODE_1, options.toBundle());
                 break;
             case R.id.edit_alarm_clock:
-                AlarmClockEditAdapter adapterEdit = new AlarmClockEditAdapter(alarmTimes, new AlarmClockEditAdapter.OnRvItemClick() {
-                    @Override
-                    public void onListAlarmSelected(int index, View view, int viewCode) {
-                        if (viewCode == 0) {
-                            alarmTimes.remove(index);
+                if (!isExitModeOpen) {
+                    isExitModeOpen = true;
+                    mMenu.findItem(R.id.add_new_alarm_clock).setVisible(false);
+                    adapterEdit = new AlarmClockEditAdapter(alarmTimes, new AlarmClockEditAdapter.OnRvItemClick() {
+                        @Override
+                        public void onListAlarmSelected(int index, View view, int viewCode) {
+                            if (viewCode == 0) {
+                                alarmTimes.remove(index);
+                            } else if (viewCode == 1) {
+                                Intent iAddAlarm = new Intent(mActivity, SetupAlarmActivity.class);
+                                iAddAlarm.putExtra(SEND_REQUEST_CODE, REQUEST_CODE_2);
+                                iAddAlarm.putExtra("POSITION", index);
+                                iAddAlarm.putExtra("ALARM", alarmTimes.get(index));
+                                // TODO: 12/19/2016 Ko thể gọi mActivity.startActivityForResult trong fragment, vì sẻ ko gọi đc hàm onActivityResult
+                                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation
+                                        (getActivity());
+                                startActivityForResult(iAddAlarm, REQUEST_CODE_2, options.toBundle());
+                            }
                         }
-                    }
-                });
-                rvAlarm.setAdapter(adapterEdit);
-                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mActivity);
-                rvAlarm.setLayoutManager(layoutManager);
-                rvAlarm.setHasFixedSize(true);
+                    });
+
+                    item.setTitle("Exit Edit Mode");
+                    rvAlarm.setAdapter(adapterEdit);
+                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mActivity);
+                    rvAlarm.setLayoutManager(layoutManager);
+                    rvAlarm.setHasFixedSize(true);
+                } else {
+                    isExitModeOpen = false;
+                    mMenu.findItem(R.id.add_new_alarm_clock).setVisible(true);
+                    item.setTitle("Edit Mode");
+                    rvAlarm.setAdapter(adapter);
+                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mActivity);
+                    rvAlarm.setLayoutManager(layoutManager);
+                    rvAlarm.setHasFixedSize(true);
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -148,13 +165,22 @@ public class AlarmClockFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "Request code: " + requestCode + "");
-        if (requestCode == REQUEST_CODE_1 && resultCode == SetupAlarmActivity.RESULT_CODE) {
-            Log.d(TAG, "CALL result");
-            Log.d(TAG, "CALL IN REQUEST 1");
-            if (data.getParcelableExtra(SetupAlarmActivity.SETUP_ALARM) != null) {
-                alarmTimes.add((AlarmTime) data.getParcelableExtra(SetupAlarmActivity.SETUP_ALARM));
-                Log.d(TAG, alarmTimes.size() + "");
-                adapter.notifyDataSetChanged();
+        if (resultCode == SetupAlarmActivity.RESULT_CODE) {
+            if (requestCode == REQUEST_CODE_1) {
+                Log.d(TAG, "CALL result");
+                Log.d(TAG, "CALL IN REQUEST 1");
+                if (data.getParcelableExtra(SetupAlarmActivity.SETUP_ALARM) != null) {
+                    alarmTimes.add((AlarmTime) data.getParcelableExtra(SetupAlarmActivity.SETUP_ALARM));
+                    Log.d(TAG, alarmTimes.size() + "");
+                    adapter.notifyDataSetChanged();
+                }
+            } else if (requestCode == REQUEST_CODE_2) {
+                if (data.getParcelableExtra(SetupAlarmActivity.SETUP_ALARM) != null) {
+                    alarmTimes.set(data.getIntExtra(SetupAlarmActivity.EDIT_ALARM_POSITION, -1),
+                            (AlarmTime) data.getParcelableExtra(SetupAlarmActivity.SETUP_ALARM));
+                    Log.d(TAG, alarmTimes.size() + "");
+                    adapterEdit.notifyDataSetChanged();
+                }
             }
         }
     }

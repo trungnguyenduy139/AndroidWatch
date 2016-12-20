@@ -9,7 +9,7 @@
     </item>
     <item
         android:id="@+id/edit_alarm_clock"
-        android:title="Edit"
+        android:title="Edit Mode"
         android:orderInCategory="101">
     </item>
 </menu>
