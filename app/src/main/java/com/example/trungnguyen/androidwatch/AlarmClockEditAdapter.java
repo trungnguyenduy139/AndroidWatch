@@ -73,16 +73,20 @@ import java.util.List;
 //    }
 //}
 public class AlarmClockEditAdapter extends RecyclerView.Adapter<AlarmClockEditAdapter.AlarmViewHolder> {
-    public interface onRvItemClick {
-        void onListAlarmSelected(int index, View view);
+    public interface OnRvItemClick {
+        void onListAlarmSelected(int index, View view, int viewCode);
+        //Đặt view code cho để biết ta click vào view nào trong
+        //nếu nếu ta click vào btDel ta sẻ gọi hàm với viewCode = 0
+        //còn nếu ta click vào btEdit ta sẻ gọi hàm với viewCode = 1
     }
 
     public static final String TAG = AlarmClockAdapter.class.getSimpleName();
     private List<AlarmTime> mAlarms;
     private AlarmViewHolder mViewHolder;
-    private final onRvItemClick mListener;
+    private final OnRvItemClick mListener;
 
-    public AlarmClockEditAdapter(List<AlarmTime> alarms, onRvItemClick listener) {
+    public AlarmClockEditAdapter(List<AlarmTime> alarms,
+                                 OnRvItemClick listener) {
         mAlarms = alarms;
         mListener = listener;
     }
@@ -128,7 +132,10 @@ public class AlarmClockEditAdapter extends RecyclerView.Adapter<AlarmClockEditAd
 
         @Override
         public void onClick(View view) {
-            mListener.onListAlarmSelected(getAdapterPosition(), view);
+            if (view == btDel) {
+                mListener.onListAlarmSelected(getAdapterPosition(), view, 0);
+            } else if (view == btEdit)
+                mListener.onListAlarmSelected(getAdapterPosition(), view, 1);
         }
     }
 }
