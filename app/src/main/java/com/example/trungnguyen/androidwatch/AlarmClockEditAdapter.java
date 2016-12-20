@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,25 +72,30 @@ import java.util.List;
 //        }
 //    }
 //}
-public class AlarmClockAdapter extends RecyclerView.Adapter<AlarmClockAdapter.AlarmViewHolder> {
-    public static final String TAG = AlarmClockAdapter.class.getSimpleName();
+public class AlarmClockEditAdapter extends RecyclerView.Adapter<AlarmClockEditAdapter.AlarmViewHolder> {
+    public interface onRvItemClick {
+        void onListAlarmSelected(int index, View view);
+    }
 
+    public static final String TAG = AlarmClockAdapter.class.getSimpleName();
     private List<AlarmTime> mAlarms;
     private AlarmViewHolder mViewHolder;
+    private final onRvItemClick mListener;
 
-    public AlarmClockAdapter(List<AlarmTime> alarms) {
+    public AlarmClockEditAdapter(List<AlarmTime> alarms, onRvItemClick listener) {
         mAlarms = alarms;
+        mListener = listener;
     }
 
     @Override
-    public AlarmClockAdapter.AlarmViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View mView = LayoutInflater.from(parent.getContext()).inflate(R.layout.alarm_clock_item, parent, false);
+    public AlarmClockEditAdapter.AlarmViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View mView = LayoutInflater.from(parent.getContext()).inflate(R.layout.alarm_clock_edit_item, parent, false);
         mViewHolder = new AlarmViewHolder(mView);
         return mViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(AlarmClockAdapter.AlarmViewHolder holder, int position) {
+    public void onBindViewHolder(AlarmClockEditAdapter.AlarmViewHolder holder, int position) {
         Log.d(TAG, position + "");
         holder.bindAlarm(mAlarms.get(position));
     }
@@ -103,29 +109,26 @@ public class AlarmClockAdapter extends RecyclerView.Adapter<AlarmClockAdapter.Al
             implements View.OnClickListener {
 
         public TextView tvTime, tvContent;
-        public Switch swAlarm;
+        public ImageView btEdit, btDel;
 
         public AlarmViewHolder(View itemView) {
             super(itemView);
             tvTime = (TextView) itemView.findViewById(R.id.tvAlarmTime);
             tvContent = (TextView) itemView.findViewById(R.id.tvAlarmConent);
-            swAlarm = (Switch) itemView.findViewById(R.id.swAlarm);
-            swAlarm.setOnClickListener(this);
+            btEdit = (ImageView) itemView.findViewById(R.id.btEdit);
+            btDel = (ImageView) itemView.findViewById(R.id.btDel);
+            btEdit.setOnClickListener(this);
+            btDel.setOnClickListener(this);
         }
 
         public void bindAlarm(AlarmTime time) {
             tvTime.setText(time.getTime());
             tvContent.setText(time.getContent());
-            swAlarm.setChecked(time.isEnable());
         }
 
         @Override
         public void onClick(View view) {
-            Log.d(TAG, "IN ONCLICK: " + getAdapterPosition() + "");
-            if (swAlarm.isChecked())
-                mAlarms.get(getAdapterPosition()).setEnable(true);
-            else mAlarms.get(getAdapterPosition()).setEnable(false);
-
+            mListener.onListAlarmSelected(getAdapterPosition(), view);
         }
     }
 }

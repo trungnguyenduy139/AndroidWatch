@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="14dp"
+    android:descendantFocusability="blocksDescendants"
     android:background="#e9d9d9">
     <TextView
         android:layout_width="wrap_content"
@@ -19,14 +20,6 @@
         android:layout_below="@id/tvAlarmTime"
         android:id="@+id/tvAlarmConent" />
 
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="20dp"
-        android:layout_centerVertical="true"
-        android:id="@+id/swAlarm" />
     <TableRow
         android:id="@+id/hr"
         android:layout_width="match_parent"
@@ -34,4 +27,24 @@
         android:background="@color/colorAccent"
         android:layout_marginTop="77dp">
     </TableRow>
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/btDel"
+        android:src="@drawable/abc_ic_clear_mtrl_alpha"
+        android:layout_alignRight="@+id/hr"
+        android:layout_centerVertical="true"
+        android:layout_alignEnd="@+id/hr" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/btEdit"
+        android:src="@android:drawable/ic_menu_edit"
+        android:layout_marginRight="34dp"
+        android:layout_marginEnd="34dp"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/btDel"
+        android:layout_toStartOf="@+id/btDel" />
 </RelativeLayout>

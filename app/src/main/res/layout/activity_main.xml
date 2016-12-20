@@ -7,7 +7,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:id="@+id/rootActivityMainLayout"
-    tools:context="com.example.trungnguyen.androidwatch.MainActivity">
+    tools:context="com.example.trungnguyen.androidwatch.MainActivity"
+    android:background="#e9d9d9">
 
     <com.ogaclejapan.smarttablayout.SmartTabLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -23,8 +24,7 @@
         app:stl_indicatorCornerRadius="1.5dp"
         app:stl_indicatorInterpolation="smart"
         app:stl_indicatorThickness="5dp"
-        app:stl_underlineColor="@color/transparent"
-        />
+        app:stl_underlineColor="@color/transparent" />
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager1"
         android:layout_width="match_parent"

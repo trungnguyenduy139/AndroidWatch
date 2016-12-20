@@ -7,7 +7,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.trungnguyen.androidwatch.SetupAlarmActivity">
+    tools:context="com.example.trungnguyen.androidwatch.SetupAlarmActivity"
+    android:background="#e9d9d9">
 
     <LinearLayout
         android:id="@+id/linearLayout"
