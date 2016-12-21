@@ -3,32 +3,32 @@ package com.example.trungnguyen.androidwatch;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.transition.Slide;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
  * Created by Trung Nguyen on 12/18/2016.
  */
-public class AlarmClockFragment extends Fragment implements OnRvItemClick {
+public class AlarmClockFragment extends Fragment
+        implements OnRvItemClick, OnSwitchAlarmChanged {
     private static final String ALARM_TIME_LAST_STATE = "alarm_time_last_state";
     private static final String TAG = AlarmClockFragment.class.getSimpleName();
     public static final int REQUEST_CODE_1 = 99;
@@ -38,8 +38,10 @@ public class AlarmClockFragment extends Fragment implements OnRvItemClick {
     AlarmClockAdapter adapter;
     RecyclerView rvAlarm;
     Activity mActivity;
+    AlarmManager alarmManager;
     private boolean isExitModeOpen = false;
     Menu mMenu;
+    Calendar calendar;
     AlarmClockEditAdapter adapterEdit;
     int mEditPosition;
 
@@ -57,6 +59,8 @@ public class AlarmClockFragment extends Fragment implements OnRvItemClick {
         Log.d(TAG, "CALL ON ONCREATEVIEW");
         View mView = LayoutInflater.from(getActivity()).inflate(R.layout.alarm_clock_fragment, container, false);
         mActivity = getActivity();
+        calendar = Calendar.getInstance();
+        alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
         alarmTimes = LastStatePreference.getLastAlarmState(getActivity());
 
 //        AlarmTime[] lastState;
@@ -71,6 +75,7 @@ public class AlarmClockFragment extends Fragment implements OnRvItemClick {
 //        }
         rvAlarm = (RecyclerView) mView.findViewById(R.id.rvAlarm);
         adapter = new AlarmClockAdapter(alarmTimes);
+        adapter.SetOnSwitchAlarmChanged(AlarmClockFragment.this);
         rvAlarm.setAdapter(adapter);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mActivity);
         rvAlarm.setLayoutManager(layoutManager);
@@ -187,6 +192,24 @@ public class AlarmClockFragment extends Fragment implements OnRvItemClick {
             ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation
                     (getActivity());
             startActivityForResult(iAddAlarm, REQUEST_CODE_2, options.toBundle());
+        }
+    }
+
+    @Override
+    public void onSwitchChanged(int index, View view) {
+        if(alarmTimes.get(index).isEnable()) {
+            Intent intentAlarmReceiver = new Intent(getActivity(), AlarmReceiver.class);
+            String[] currentTime = new String[2];
+            currentTime = ConvertTimeMode.convertTo24HourMode(alarmTimes.get(index).getTime());
+            //format24Hour.format(date) sẻ trả về kiểu String dạng ví dụ "10:50"
+            //ta cần split để lấy đc hai chuỗi "10" và "50"
+            //Create pending intent that delays the intent until the specified calendar time
+            calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(currentTime[0]));
+            calendar.set(Calendar.MINUTE, Integer.valueOf(currentTime[1]));
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                    getActivity(), 0, intentAlarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
+            //Set the alarm manager
+            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
         }
     }
 }

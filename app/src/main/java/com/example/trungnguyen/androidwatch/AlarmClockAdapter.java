@@ -73,10 +73,10 @@ import java.util.List;
 //}
 public class AlarmClockAdapter extends RecyclerView.Adapter<AlarmClockAdapter.AlarmViewHolder> {
     public static final String TAG = AlarmClockAdapter.class.getSimpleName();
-
+    private OnSwitchAlarmChanged mListener;
     private List<AlarmTime> mAlarms;
     private AlarmViewHolder mViewHolder;
-
+    Context mContext;
     public AlarmClockAdapter(List<AlarmTime> alarms) {
         mAlarms = alarms;
     }
@@ -92,6 +92,10 @@ public class AlarmClockAdapter extends RecyclerView.Adapter<AlarmClockAdapter.Al
     public void onBindViewHolder(AlarmClockAdapter.AlarmViewHolder holder, int position) {
         Log.d(TAG, position + "");
         holder.bindAlarm(mAlarms.get(position));
+    }
+
+    public void SetOnSwitchAlarmChanged(OnSwitchAlarmChanged listener) {
+        mListener = listener;
     }
 
     @Override
@@ -122,10 +126,13 @@ public class AlarmClockAdapter extends RecyclerView.Adapter<AlarmClockAdapter.Al
         @Override
         public void onClick(View view) {
             Log.d(TAG, "IN ONCLICK: " + getAdapterPosition() + "");
-            if (swAlarm.isChecked())
+            if (swAlarm.isChecked()) {
                 mAlarms.get(getAdapterPosition()).setEnable(true);
-            else mAlarms.get(getAdapterPosition()).setEnable(false);
-
+                mListener.onSwitchChanged(getAdapterPosition(), view);
+            } else {
+                mAlarms.get(getAdapterPosition()).setEnable(false);
+                mListener.onSwitchChanged(getAdapterPosition(), view);
+            }
         }
     }
 }

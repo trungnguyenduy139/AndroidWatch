@@ -120,6 +120,9 @@ public class AlarmClockEditAdapter extends RecyclerView.Adapter<AlarmClockEditAd
 
     public void SetOnRvClickListener(OnRvItemClick listener) {
         mListener = listener;
+        if (mListener == null)
+            Log.d(TAG, "NULL");
+        else Log.d(TAG, "KO NULL");
     }
 
     public class AlarmViewHolder extends RecyclerView.ViewHolder
@@ -148,6 +151,7 @@ public class AlarmClockEditAdapter extends RecyclerView.Adapter<AlarmClockEditAd
             //Đặt view code cho để biết ta click vào view nào trong
             //nếu nếu ta click vào btDel ta sẻ gọi hàm với viewCode = 0
             //còn nếu ta click vào btEdit ta sẻ gọi hàm với viewCode = 1
+            Log.d(TAG, "CALL ON CLICK EDIT ADAPTER");
             if (view == btDel) {
                 mListener.onListAlarmSelected(getAdapterPosition(), view, 0);
             } else if (view == btEdit)
