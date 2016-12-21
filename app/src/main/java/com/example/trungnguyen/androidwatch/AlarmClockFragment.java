@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -40,37 +41,34 @@ public class AlarmClockFragment extends Fragment {
     private boolean isExitModeOpen = false;
     Menu mMenu;
     AlarmClockEditAdapter adapterEdit;
+    int mEditPosition;
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "CALL ON ONCREATE");
         setHasOptionsMenu(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "CALL ON ONCREATEVIEW");
         View mView = LayoutInflater.from(getActivity()).inflate(R.layout.alarm_clock_fragment, container, false);
         mActivity = getActivity();
-        alarmTimes = new ArrayList<>();
-        AlarmTime[] lastState;
-        if (savedInstanceState != null && savedInstanceState.getParcelableArray(ALARM_TIME_LAST_STATE) != null) {
-            Log.d(TAG, "saveInstanceState không null");
-            lastState = (AlarmTime[]) savedInstanceState.getParcelableArray(ALARM_TIME_LAST_STATE);
-            for (AlarmTime alarm : lastState) {
-                alarmTimes.add(alarm);
-            }
-        } else {
-            Log.d(TAG, "saveInstanceState null");
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-            alarmTimes.add(new AlarmTime("9:40 PM", false, "Gọi Tao Dậy Đi Học"));
-        }
+        alarmTimes = LastStatePreference.getLastAlarmState(getActivity());
+
+//        AlarmTime[] lastState;
+//        if (savedInstanceState != null && savedInstanceState.getParcelableArray(ALARM_TIME_LAST_STATE) != null) {
+//            Log.d(TAG, "saveInstanceState không null");
+//            lastState = (AlarmTime[]) savedInstanceState.getParcelableArray(ALARM_TIME_LAST_STATE);
+//            for (AlarmTime alarm : lastState) {
+//                alarmTimes.add(alarm);
+//            }
+//        } else {
+//            Log.d(TAG, "saveInstanceState null");
+//        }
         rvAlarm = (RecyclerView) mView.findViewById(R.id.rvAlarm);
         adapter = new AlarmClockAdapter(alarmTimes);
         rvAlarm.setAdapter(adapter);
@@ -80,10 +78,6 @@ public class AlarmClockFragment extends Fragment {
         return mView;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -115,7 +109,7 @@ public class AlarmClockFragment extends Fragment {
                             } else if (viewCode == 1) {
                                 Intent iAddAlarm = new Intent(mActivity, SetupAlarmActivity.class);
                                 iAddAlarm.putExtra(SEND_REQUEST_CODE, REQUEST_CODE_2);
-                                iAddAlarm.putExtra("POSITION", index);
+                                mEditPosition = index;
                                 iAddAlarm.putExtra("ALARM", alarmTimes.get(index));
                                 // TODO: 12/19/2016 Ko thể gọi mActivity.startActivityForResult trong fragment, vì sẻ ko gọi đc hàm onActivityResult
                                 ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation
@@ -144,27 +138,28 @@ public class AlarmClockFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        AlarmTime[] alarmTimeLastState = new AlarmTime[alarmTimes.size()];
-        Log.d(TAG, alarmTimes.size() + "");
-        if (alarmTimes.size() > 0) {
-            for (int i = 0; i < alarmTimes.size(); i++) {
-                alarmTimeLastState[i] = new AlarmTime(
-                        alarmTimes.get(i).getTime(),
-                        alarmTimes.get(i).isEnable(),
-                        alarmTimes.get(i).getContent()
-                );
-            }
-            outState.putParcelableArray(ALARM_TIME_LAST_STATE, alarmTimeLastState);
-        }
-        super.onSaveInstanceState(outState);
-    }
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        AlarmTime[] alarmTimeLastState = new AlarmTime[alarmTimes.size()];
+//        Log.d(TAG, alarmTimes.size() + "");
+//        if (alarmTimes.size() > 0) {
+//            for (int i = 0; i < alarmTimes.size(); i++) {
+//                alarmTimeLastState[i] = new AlarmTime(
+//                        alarmTimes.get(i).getTime(),
+//                        alarmTimes.get(i).isEnable(),
+//                        alarmTimes.get(i).getContent()
+//                );
+//            }
+//            outState.putParcelableArray(ALARM_TIME_LAST_STATE, alarmTimeLastState);
+//        }
+//        super.onSaveInstanceState(outState);
+//    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "Request code: " + requestCode + "");
+        Log.d(TAG, "CALL ON ActivityResult");
         if (resultCode == SetupAlarmActivity.RESULT_CODE) {
             if (requestCode == REQUEST_CODE_1) {
                 Log.d(TAG, "CALL result");
@@ -173,15 +168,23 @@ public class AlarmClockFragment extends Fragment {
                     alarmTimes.add((AlarmTime) data.getParcelableExtra(SetupAlarmActivity.SETUP_ALARM));
                     Log.d(TAG, alarmTimes.size() + "");
                     adapter.notifyDataSetChanged();
+
                 }
             } else if (requestCode == REQUEST_CODE_2) {
                 if (data.getParcelableExtra(SetupAlarmActivity.SETUP_ALARM) != null) {
-                    alarmTimes.set(data.getIntExtra(SetupAlarmActivity.EDIT_ALARM_POSITION, -1),
+                    alarmTimes.set(mEditPosition,
                             (AlarmTime) data.getParcelableExtra(SetupAlarmActivity.SETUP_ALARM));
-                    Log.d(TAG, alarmTimes.size() + "");
+                    Log.d(TAG, "POSITION UPDATED " + data.getIntExtra(SetupAlarmActivity.EDIT_ALARM_POSITION, -1) + "");
                     adapterEdit.notifyDataSetChanged();
                 }
             }
         }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "CALL ON STOP");
+        LastStatePreference.saveLastAlarmState(getActivity(), alarmTimes);
     }
 }

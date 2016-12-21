@@ -39,7 +39,6 @@ public class SetupAlarmActivity extends AppCompatActivity
     AlarmTime[] alarm;
     boolean isTimeChanged = false;
     int requestCode;
-    int position;
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override
@@ -63,8 +62,7 @@ public class SetupAlarmActivity extends AppCompatActivity
         slide.excludeTarget(decor.findViewById(actionBarId), true);
         slide.excludeTarget(android.R.id.navigationBarBackground, true);
         getWindow().setEnterTransition(slide);
-        if (RESULT_CODE == AlarmClockFragment.REQUEST_CODE_2) {
-            position = getIntent().getIntExtra("POSITION", -1);
+        if (requestCode == AlarmClockFragment.REQUEST_CODE_2 && requestCode != 0) {
             alarm[0] = getIntent().getParcelableExtra("ALARM");
             String[] currentTime = convertTimeTo24HourMode();
             timePicker.setCurrentHour(Integer.valueOf(currentTime[0]));
@@ -88,6 +86,7 @@ public class SetupAlarmActivity extends AppCompatActivity
 
         // Sort version
         return Calendar.getInstance().get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM";
+        //get AM or PM của thời gian hiện tại của điện thoại
 //        if (hour > 12)
 //            return "PM";
 //        else return "AM";
@@ -127,7 +126,7 @@ public class SetupAlarmActivity extends AppCompatActivity
 
     private String[] convertTimeTo24HourMode() {
         SimpleDateFormat format12Hour = new SimpleDateFormat("h:mm a");
-        String mode12HourTime = alarm[position].getTime();
+        String mode12HourTime = alarm[0].getTime();
         Date date = null;
         try {
             date = format12Hour.parse(mode12HourTime);
@@ -151,7 +150,6 @@ public class SetupAlarmActivity extends AppCompatActivity
             }
             Intent intent = new Intent();
             intent.putExtra(SETUP_ALARM, alarm[0]);
-            intent.putExtra(EDIT_ALARM_POSITION, position);
             setResult(RESULT_CODE, intent);
             onBackPressed();
         } else if (view == btCancel) {
