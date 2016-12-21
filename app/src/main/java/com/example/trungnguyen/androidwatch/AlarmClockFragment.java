@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Created by Trung Nguyen on 12/18/2016.
  */
-public class AlarmClockFragment extends Fragment {
+public class AlarmClockFragment extends Fragment implements OnRvItemClick {
     private static final String ALARM_TIME_LAST_STATE = "alarm_time_last_state";
     private static final String TAG = AlarmClockFragment.class.getSimpleName();
     public static final int REQUEST_CODE_1 = 99;
@@ -101,24 +101,8 @@ public class AlarmClockFragment extends Fragment {
                 if (!isExitModeOpen) {
                     isExitModeOpen = true;
                     mMenu.findItem(R.id.add_new_alarm_clock).setVisible(false);
-                    adapterEdit = new AlarmClockEditAdapter(alarmTimes, new AlarmClockEditAdapter.OnRvItemClick() {
-                        @Override
-                        public void onListAlarmSelected(int index, View view, int viewCode) {
-                            if (viewCode == 0) {
-                                alarmTimes.remove(index);
-                            } else if (viewCode == 1) {
-                                Intent iAddAlarm = new Intent(mActivity, SetupAlarmActivity.class);
-                                iAddAlarm.putExtra(SEND_REQUEST_CODE, REQUEST_CODE_2);
-                                mEditPosition = index;
-                                iAddAlarm.putExtra("ALARM", alarmTimes.get(index));
-                                // TODO: 12/19/2016 Ko thể gọi mActivity.startActivityForResult trong fragment, vì sẻ ko gọi đc hàm onActivityResult
-                                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation
-                                        (getActivity());
-                                startActivityForResult(iAddAlarm, REQUEST_CODE_2, options.toBundle());
-                            }
-                        }
-                    });
-
+                    adapterEdit = new AlarmClockEditAdapter(alarmTimes);
+                    adapterEdit.SetOnRvClickListener(AlarmClockFragment.this);
                     item.setTitle("Exit Edit Mode");
                     rvAlarm.setAdapter(adapterEdit);
                     RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mActivity);
@@ -186,5 +170,23 @@ public class AlarmClockFragment extends Fragment {
         super.onStop();
         Log.d(TAG, "CALL ON STOP");
         LastStatePreference.saveLastAlarmState(getActivity(), alarmTimes);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void onListAlarmSelected(int index, View view, int viewCode) {
+        if (viewCode == 0) {
+            alarmTimes.remove(index);
+            adapterEdit.notifyDataSetChanged();
+        } else if (viewCode == 1) {
+            Intent iAddAlarm = new Intent(mActivity, SetupAlarmActivity.class);
+            iAddAlarm.putExtra(SEND_REQUEST_CODE, REQUEST_CODE_2);
+            mEditPosition = index;
+            iAddAlarm.putExtra("ALARM", alarmTimes.get(index));
+            // TODO: 12/19/2016 Ko thể gọi mActivity.startActivityForResult trong fragment, vì sẻ ko gọi đc hàm onActivityResult
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation
+                    (getActivity());
+            startActivityForResult(iAddAlarm, REQUEST_CODE_2, options.toBundle());
+        }
     }
 }

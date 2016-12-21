@@ -73,22 +73,29 @@ import java.util.List;
 //    }
 //}
 public class AlarmClockEditAdapter extends RecyclerView.Adapter<AlarmClockEditAdapter.AlarmViewHolder> {
-    public interface OnRvItemClick {
-        void onListAlarmSelected(int index, View view, int viewCode);
-        //Đặt view code cho để biết ta click vào view nào trong
-        //nếu nếu ta click vào btDel ta sẻ gọi hàm với viewCode = 0
-        //còn nếu ta click vào btEdit ta sẻ gọi hàm với viewCode = 1
-    }
 
     public static final String TAG = AlarmClockAdapter.class.getSimpleName();
     private List<AlarmTime> mAlarms;
     private AlarmViewHolder mViewHolder;
-    private final OnRvItemClick mListener;
+    private OnRvItemClick mListener;
+    Context mContext;
+    //Tạo 1 file Interface rồi khai báo Interface trong rv adapter
+    //Trong hàm onClick trong viewholder khai báo mListener.onListAlarmSelected
+    //Và khai báo 1 hàm SetOnRvClickTenner
+//    public void SetOnRvClickListener(OnRvItemClick listener) {
+//        mListener = listener;
+//    }
+    //Trong fragment or activity implements Interface đó và khai báo, Rv.SetOnRvClickListener(this)
+    //Override abtract method onListAlarmSelected trong fragment or activity
+    //Interface dc override ở đâu thì cần khai báo với Activity or Context của Activity or Fragment đó(dùng getActivity() cho Fragment)
 
-    public AlarmClockEditAdapter(List<AlarmTime> alarms,
-                                 OnRvItemClick listener) {
+    //CÓ 2 cách sử dụng, 1 là khai báo hàm SetOnRvClick trong adapter
+    // 2 là trong hàm tạo adapter thêm 1 biến context để khai báo cho interface
+
+    public AlarmClockEditAdapter(List<AlarmTime> alarms) { //Cách 2 khai báo thêm 1 biến trong Hàm tạo adapter
         mAlarms = alarms;
-        mListener = listener;
+//        mContext = context;
+//        mListener = (OnRvItemClick) mContext;
     }
 
     @Override
@@ -107,6 +114,12 @@ public class AlarmClockEditAdapter extends RecyclerView.Adapter<AlarmClockEditAd
     @Override
     public int getItemCount() {
         return mAlarms.size();
+    }
+
+    //Trong android thường sử dụng cách tạo hàm SetOnClick cho việc xử lí các sự kiện click lên các View
+
+    public void SetOnRvClickListener(OnRvItemClick listener) {
+        mListener = listener;
     }
 
     public class AlarmViewHolder extends RecyclerView.ViewHolder
@@ -132,6 +145,9 @@ public class AlarmClockEditAdapter extends RecyclerView.Adapter<AlarmClockEditAd
 
         @Override
         public void onClick(View view) {
+            //Đặt view code cho để biết ta click vào view nào trong
+            //nếu nếu ta click vào btDel ta sẻ gọi hàm với viewCode = 0
+            //còn nếu ta click vào btEdit ta sẻ gọi hàm với viewCode = 1
             if (view == btDel) {
                 mListener.onListAlarmSelected(getAdapterPosition(), view, 0);
             } else if (view == btEdit)

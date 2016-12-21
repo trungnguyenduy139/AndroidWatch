@@ -70,22 +70,4 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "MAIN ON PAUSE");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG, "MAIN ON STOP");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "MAIN ON DESTROY");
-    }
 }
