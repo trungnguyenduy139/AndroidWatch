@@ -222,6 +222,9 @@ public class AlarmClockFragment extends Fragment
             alarmManager[index].set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
         } else if (!alarmTimes.get(index).isEnable() && alarmManager[index] != null) {
             alarmManager[index].cancel(pendingIntent);
+            Intent stopAlarmIntent = new Intent(AlarmService.ALARM_FILTER);
+            stopAlarmIntent.putExtra("STOP_ALARM", alarmTimes.get(index).isEnable());
+            getActivity().sendBroadcast(stopAlarmIntent);
         }
     }
 }

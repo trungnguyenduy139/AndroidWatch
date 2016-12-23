@@ -19,6 +19,9 @@
 
         <receiver android:name=".AlarmReceiver"/>
 
+        <service android:name=".AlarmService"
+            android:enabled="true"/>
+
     </application>
 
 </manifest>
