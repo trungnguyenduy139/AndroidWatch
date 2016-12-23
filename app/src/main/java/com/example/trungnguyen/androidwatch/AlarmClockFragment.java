@@ -40,7 +40,7 @@ public class AlarmClockFragment extends Fragment
     AlarmClockAdapter adapter;
     RecyclerView rvAlarm;
     Activity mActivity;
-    AlarmManager alarmManager;
+    AlarmManager[] alarmManager;
     PendingIntent pendingIntent;
     private boolean isExitModeOpen = false;
     Menu mMenu;
@@ -52,14 +52,14 @@ public class AlarmClockFragment extends Fragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "CALL ON ONCREATE");
+        Log.d(TAG, "CALL ON ON CREATE");
         setHasOptionsMenu(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "CALL ON ONCREATEVIEW");
+        Log.d(TAG, "CALL ON ON CREATE VIEW");
         View mView = LayoutInflater.from(getActivity()).inflate(R.layout.alarm_clock_fragment, container, false);
         addVariables();
 
@@ -86,8 +86,8 @@ public class AlarmClockFragment extends Fragment
     private void addVariables() {
         mActivity = getActivity();
         calendar = Calendar.getInstance();
-        alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
         alarmTimes = LastStatePreference.getLastAlarmState(getActivity());
+        alarmManager = new AlarmManager[24];
     }
 
 
@@ -206,6 +206,7 @@ public class AlarmClockFragment extends Fragment
     @Override
     public void onSwitchChanged(int index, View view) {
         if (alarmTimes.get(index).isEnable()) {
+            alarmManager[index] = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
             Intent intentAlarmReceiver = new Intent(getActivity(), AlarmReceiver.class);
             String[] currentTime = ConvertTimeMode.convertTo24HourMode(alarmTimes.get(index).getTime());
             calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(currentTime[0]));
@@ -216,11 +217,11 @@ public class AlarmClockFragment extends Fragment
 //            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(currentTime[0]));
 //            calendar.set(Calendar.MINUTE, Integer.parseInt(currentTime[1]));
             pendingIntent = PendingIntent.getBroadcast(
-                    getActivity(), 0, intentAlarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
+                    getActivity(), index, intentAlarmReceiver, 0);
             //Set the alarm manager
-            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-        } else {
-            alarmManager.cancel(pendingIntent);
+            alarmManager[index].set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        } else if (!alarmTimes.get(index).isEnable() && alarmManager[index] != null) {
+            alarmManager[index].cancel(pendingIntent);
         }
     }
 }
