@@ -21,7 +21,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,7 +32,6 @@ import java.util.List;
  */
 public class AlarmClockFragment extends Fragment
         implements OnRvItemClick, OnSwitchAlarmChanged {
-    private static final String ALARM_TIME_LAST_STATE = "alarm_time_last_state";
     private static final String TAG = AlarmClockFragment.class.getSimpleName();
     public static final int REQUEST_CODE_1 = 99;
     public static final int REQUEST_CODE_2 = 100;
@@ -39,6 +41,7 @@ public class AlarmClockFragment extends Fragment
     RecyclerView rvAlarm;
     Activity mActivity;
     AlarmManager alarmManager;
+    PendingIntent pendingIntent;
     private boolean isExitModeOpen = false;
     Menu mMenu;
     Calendar calendar;
@@ -58,10 +61,7 @@ public class AlarmClockFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "CALL ON ONCREATEVIEW");
         View mView = LayoutInflater.from(getActivity()).inflate(R.layout.alarm_clock_fragment, container, false);
-        mActivity = getActivity();
-        calendar = Calendar.getInstance();
-        alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-        alarmTimes = LastStatePreference.getLastAlarmState(getActivity());
+        addVariables();
 
 //        AlarmTime[] lastState;
 //        if (savedInstanceState != null && savedInstanceState.getParcelableArray(ALARM_TIME_LAST_STATE) != null) {
@@ -81,6 +81,13 @@ public class AlarmClockFragment extends Fragment
         rvAlarm.setLayoutManager(layoutManager);
         rvAlarm.setHasFixedSize(true);
         return mView;
+    }
+
+    private void addVariables() {
+        mActivity = getActivity();
+        calendar = Calendar.getInstance();
+        alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+        alarmTimes = LastStatePreference.getLastAlarmState(getActivity());
     }
 
 
@@ -195,21 +202,25 @@ public class AlarmClockFragment extends Fragment
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onSwitchChanged(int index, View view) {
-        if(alarmTimes.get(index).isEnable()) {
+        if (alarmTimes.get(index).isEnable()) {
             Intent intentAlarmReceiver = new Intent(getActivity(), AlarmReceiver.class);
-            String[] currentTime = new String[2];
-            currentTime = ConvertTimeMode.convertTo24HourMode(alarmTimes.get(index).getTime());
+            String[] currentTime = ConvertTimeMode.convertTo24HourMode(alarmTimes.get(index).getTime());
+            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(currentTime[0]));
+            calendar.set(Calendar.MINUTE, Integer.parseInt(currentTime[1]));
             //format24Hour.format(date) sẻ trả về kiểu String dạng ví dụ "10:50"
             //ta cần split để lấy đc hai chuỗi "10" và "50"
             //Create pending intent that delays the intent until the specified calendar time
-            calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(currentTime[0]));
-            calendar.set(Calendar.MINUTE, Integer.valueOf(currentTime[1]));
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(
+//            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(currentTime[0]));
+//            calendar.set(Calendar.MINUTE, Integer.parseInt(currentTime[1]));
+            pendingIntent = PendingIntent.getBroadcast(
                     getActivity(), 0, intentAlarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
             //Set the alarm manager
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        } else {
+            alarmManager.cancel(pendingIntent);
         }
     }
 }

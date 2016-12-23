@@ -57,6 +57,7 @@ public class SetupAlarmActivity extends AppCompatActivity
         if (requestCode == AlarmClockFragment.REQUEST_CODE_2 && requestCode != 0) {
             alarm[0] = getIntent().getParcelableExtra("ALARM");
             String[] currentTime = ConvertTimeMode.convertTo24HourMode(alarm[0].getTime());
+            // to setup values for TimePicker you must to convert Time to 24h mode
             timePicker.setCurrentHour(Integer.valueOf(currentTime[0]));
             timePicker.setCurrentMinute(Integer.valueOf(currentTime[1]));
             etContent.setText(alarm[0].getContent());
@@ -98,9 +99,8 @@ public class SetupAlarmActivity extends AppCompatActivity
         isTimeChanged = true;
         // currentHour và currentMinute trong onTimeChanged luôn trả về giá trị thời gian
         // ở mode 24h vì thế ta cần convert sang mode 12h với SimpleDateFormat
-        Log.d(TAG, "TIME CHANGE " + currentHour + " " + currentMinute);
         String mode12HourTime = ConvertTimeMode.convertTo12HourMode(currentHour, currentMinute);
-        alarm[0] = new AlarmTime(mode12HourTime, true, etContent.getText().toString());
+        alarm[0] = new AlarmTime(mode12HourTime, false, etContent.getText().toString());
     }
 
 //    private String convertTimeTo12HourMode(int currentHour, int currentMinute) {
@@ -138,7 +138,7 @@ public class SetupAlarmActivity extends AppCompatActivity
         if (view == btSubmit) {
             if (!isTimeChanged) {
                 String mode12HourTime = ConvertTimeMode.convertTo12HourMode(timePicker.getCurrentHour(), timePicker.getCurrentMinute());
-                alarm[0] = new AlarmTime(mode12HourTime, true, etContent.getText().toString());
+                alarm[0] = new AlarmTime(mode12HourTime, false, etContent.getText().toString());
             }
             Intent intent = new Intent();
             intent.putExtra(SETUP_ALARM, alarm[0]);
