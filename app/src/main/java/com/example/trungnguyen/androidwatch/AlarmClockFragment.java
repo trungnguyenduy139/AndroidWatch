@@ -36,6 +36,7 @@ public class AlarmClockFragment extends Fragment
     public static final int REQUEST_CODE_1 = 99;
     public static final int REQUEST_CODE_2 = 100;
     public static final String SEND_REQUEST_CODE = "send_request_code";
+    public static final String RINGTONE = "ringtone";
     List<AlarmTime> alarmTimes;
     AlarmClockAdapter adapter;
     RecyclerView rvAlarm;
@@ -202,12 +203,19 @@ public class AlarmClockFragment extends Fragment
         }
     }
 
+    @Override
+    public void onRtClick(int index) {
+
+    }
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onSwitchChanged(int index, View view) {
         if (alarmTimes.get(index).isEnable()) {
             alarmManager[index] = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
             Intent intentAlarmReceiver = new Intent(getActivity(), AlarmReceiver.class);
+            intentAlarmReceiver.putExtra(RINGTONE, alarmTimes.get(index).getRingtoneId());
+            Log.d(TAG, alarmTimes.get(index).getRingtoneId()+"");
             String[] currentTime = ConvertTimeMode.convertTo24HourMode(alarmTimes.get(index).getTime());
             calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(currentTime[0]));
             calendar.set(Calendar.MINUTE, Integer.parseInt(currentTime[1]));

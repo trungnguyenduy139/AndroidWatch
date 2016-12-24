@@ -12,15 +12,25 @@ public class AlarmTime implements Parcelable {
     private String mTime;
     private String mContent;
     private boolean isEnable;
+    private int ringtoneId;
 
     public AlarmTime() {
 
     }
 
-    public AlarmTime(String time, boolean isEnable, String content) {
+    public AlarmTime(String time, boolean isEnable, String content, int ringtoneId) {
         this.mTime = time;
         this.isEnable = isEnable;
         this.mContent = content;
+        this.ringtoneId = ringtoneId;
+    }
+
+    public void setRingtoneId(int ringtoneId) {
+        this.ringtoneId = ringtoneId;
+    }
+
+    public int getRingtoneId() {
+        return ringtoneId;
     }
 
     public String getTime() {
@@ -57,12 +67,14 @@ public class AlarmTime implements Parcelable {
         dest.writeString(mTime);
         dest.writeString(mContent);
         dest.writeInt(isEnable ? 1 : 0);
+        dest.writeInt(ringtoneId);
     }
 
     private AlarmTime(Parcel in) {
         mTime = in.readString();
         mContent = in.readString();
         isEnable = in.readInt() != 0;
+        ringtoneId = in.readInt();
     }
 
     public static final Creator<AlarmTime> CREATOR = new Creator<AlarmTime>() {

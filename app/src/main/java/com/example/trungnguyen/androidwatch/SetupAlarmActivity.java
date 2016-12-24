@@ -1,6 +1,8 @@
 package com.example.trungnguyen.androidwatch;
 
 import android.annotation.TargetApi;
+import android.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.util.Calendar;
+import java.util.List;
 
 public class SetupAlarmActivity extends AppCompatActivity
         implements TimePicker.OnTimeChangedListener, View.OnClickListener {
@@ -31,7 +34,11 @@ public class SetupAlarmActivity extends AppCompatActivity
     AlarmTime[] alarm;
     boolean isTimeChanged = false;
     int requestCode;
-
+    static boolean soundPanelIsSet = false;
+    List<Integer> ringtoneList;
+    RingtoneDialog dialog;
+    static int ringToneID;
+    FragmentManager fragmentManager;
     @TargetApi(Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +46,7 @@ public class SetupAlarmActivity extends AppCompatActivity
         setContentView(R.layout.activity_setup_alarm);
         addControls();
         addEvents();
+        fragmentManager = getSupportFragmentManager();
 // Hide both the navigation bar and the status bar.
 // SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
 // a general rule, you should design your app to hide the status bar whenever you
@@ -68,6 +76,7 @@ public class SetupAlarmActivity extends AppCompatActivity
         btSubmit.setOnClickListener(this);
         btCancel.setOnClickListener(this);
         timePicker.setOnTimeChangedListener(this);
+        soundPanel.setOnClickListener(this);
     }
 
     private String getTimeMode(int hour) {
@@ -100,7 +109,8 @@ public class SetupAlarmActivity extends AppCompatActivity
         // currentHour và currentMinute trong onTimeChanged luôn trả về giá trị thời gian
         // ở mode 24h vì thế ta cần convert sang mode 12h với SimpleDateFormat
         String mode12HourTime = ConvertTimeMode.convertTo12HourMode(currentHour, currentMinute);
-        alarm[0] = new AlarmTime(mode12HourTime, false, etContent.getText().toString());
+        Log.d(TAG, currentHour + " " + currentMinute);
+        alarm[0] = new AlarmTime(mode12HourTime, false, etContent.getText().toString(), R.raw.alarm_sound);
     }
 
 //    private String convertTimeTo12HourMode(int currentHour, int currentMinute) {
@@ -138,7 +148,11 @@ public class SetupAlarmActivity extends AppCompatActivity
         if (view == btSubmit) {
             if (!isTimeChanged) {
                 String mode12HourTime = ConvertTimeMode.convertTo12HourMode(timePicker.getCurrentHour(), timePicker.getCurrentMinute());
-                alarm[0] = new AlarmTime(mode12HourTime, false, etContent.getText().toString());
+                if (!soundPanelIsSet)
+                    alarm[0] = new AlarmTime(mode12HourTime, false, etContent.getText().toString(), R.raw.alarm_sound);
+                else
+                    alarm[0] = new AlarmTime(mode12HourTime, false, etContent.getText().toString(), ringToneID);
+
             }
             Intent intent = new Intent();
             intent.putExtra(SETUP_ALARM, alarm[0]);
@@ -146,6 +160,14 @@ public class SetupAlarmActivity extends AppCompatActivity
             onBackPressed();
         } else if (view == btCancel) {
             onBackPressed();
+        } else if (view == soundPanel) {
+            dialog = new RingtoneDialog();
+            dialog.show(fragmentManager, "DIALOG");
         }
+    }
+
+    public static void getRingtoneID(int ringtoneID) {
+        soundPanelIsSet = true;
+        ringToneID = ringtoneID;
     }
 }

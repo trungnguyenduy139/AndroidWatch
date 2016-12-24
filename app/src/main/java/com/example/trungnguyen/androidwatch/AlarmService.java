@@ -25,10 +25,9 @@ public class AlarmService extends Service {
         super.onCreate();
         alarmPlayer = new MediaPlayer();
         filter = new IntentFilter(ALARM_FILTER);
-        alarmPlayer = MediaPlayer.create(this, R.raw.alarm_sound);
-        alarmPlayer.setLooping(true);
         registerReceiver(receiver, filter);
     }
+
 
     @Nullable
     @Override
@@ -38,14 +37,9 @@ public class AlarmService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        alarmPlayer = MediaPlayer.create(this, intent.getIntExtra(AlarmReceiver.RINGTONE1, R.raw.alarm2));
+        alarmPlayer.setLooping(true);
         alarmPlayer.start();
-        alarmPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                alarmPlayer.stop();
-                stopSelf();
-            }
-        });
         return super.onStartCommand(intent, flags, startId);
     }
 
