@@ -212,7 +212,7 @@ public class AlarmClockFragment extends Fragment
             calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(currentTime[0]));
             calendar.set(Calendar.MINUTE, Integer.parseInt(currentTime[1]));
             //format24Hour.format(date) sẻ trả về kiểu String dạng ví dụ "10:50"
-            //ta cần split để lấy đc hai chuỗi "10" và "50"
+            //ta cần split với dấu ":" để lấy đc hai chuỗi "10" và "50"
             //Create pending intent that delays the intent until the specified calendar time
 //            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(currentTime[0]));
 //            calendar.set(Calendar.MINUTE, Integer.parseInt(currentTime[1]));
