@@ -1,7 +1,6 @@
 package com.example.trungnguyen.androidwatch;
 
 import android.annotation.TargetApi;
-import android.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.os.Build;
@@ -17,6 +16,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.example.trungnguyen.androidwatch.fragments.AlarmClockFragment;
+import com.example.trungnguyen.androidwatch.fragments.RingtoneDialog;
+import com.example.trungnguyen.androidwatch.helpers.ConvertTimeMode;
+import com.example.trungnguyen.androidwatch.models.AlarmTime;
+import com.example.trungnguyen.androidwatch.models.Ringtone;
+
 import java.util.Calendar;
 import java.util.List;
 
@@ -26,6 +31,7 @@ public class SetupAlarmActivity extends AppCompatActivity
     public static final String SETUP_ALARM = "setup_alarm";
     public static final int RESULT_CODE = 200;
     public static final String EDIT_ALARM_POSITION = "edit_alarm_position";
+    public static final String ID = "id";
     LinearLayout soundPanel;
     ImageView btSubmit, btCancel;
     EditText etContent;
@@ -35,10 +41,10 @@ public class SetupAlarmActivity extends AppCompatActivity
     boolean isTimeChanged = false;
     int requestCode;
     static boolean soundPanelIsSet = false;
-    List<Integer> ringtoneList;
     RingtoneDialog dialog;
-    static int ringToneID;
     FragmentManager fragmentManager;
+    static Ringtone ringtone;
+
     @TargetApi(Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +75,7 @@ public class SetupAlarmActivity extends AppCompatActivity
             timePicker.setCurrentHour(Integer.valueOf(currentTime[0]));
             timePicker.setCurrentMinute(Integer.valueOf(currentTime[1]));
             etContent.setText(alarm[0].getContent());
+            chosenSound.setText(alarm[0].getRingtone().getName());
         }
     }
 
@@ -110,7 +117,8 @@ public class SetupAlarmActivity extends AppCompatActivity
         // ở mode 24h vì thế ta cần convert sang mode 12h với SimpleDateFormat
         String mode12HourTime = ConvertTimeMode.convertTo12HourMode(currentHour, currentMinute);
         Log.d(TAG, currentHour + " " + currentMinute);
-        alarm[0] = new AlarmTime(mode12HourTime, false, etContent.getText().toString(), R.raw.alarm_sound);
+        alarm[0] = new AlarmTime(mode12HourTime, false,
+                etContent.getText().toString(), new Ringtone("Alarm 1", R.raw.alarm1, true));
     }
 
 //    private String convertTimeTo12HourMode(int currentHour, int currentMinute) {
@@ -149,9 +157,10 @@ public class SetupAlarmActivity extends AppCompatActivity
             if (!isTimeChanged) {
                 String mode12HourTime = ConvertTimeMode.convertTo12HourMode(timePicker.getCurrentHour(), timePicker.getCurrentMinute());
                 if (!soundPanelIsSet)
-                    alarm[0] = new AlarmTime(mode12HourTime, false, etContent.getText().toString(), R.raw.alarm_sound);
+                    alarm[0] = new AlarmTime(mode12HourTime, false,
+                            etContent.getText().toString(), new Ringtone("Alarm 1", R.raw.alarm1, true));
                 else
-                    alarm[0] = new AlarmTime(mode12HourTime, false, etContent.getText().toString(), ringToneID);
+                    alarm[0] = new AlarmTime(mode12HourTime, false, etContent.getText().toString(), ringtone);
 
             }
             Intent intent = new Intent();
@@ -162,12 +171,18 @@ public class SetupAlarmActivity extends AppCompatActivity
             onBackPressed();
         } else if (view == soundPanel) {
             dialog = new RingtoneDialog();
+            if (requestCode == AlarmClockFragment.REQUEST_CODE_2) {
+                Bundle bundle = new Bundle();
+                bundle.putInt(ID, alarm[0].getRingtone().getId());
+                dialog.setArguments(bundle);
+            }
             dialog.show(fragmentManager, "DIALOG");
         }
     }
 
-    public static void getRingtoneID(int ringtoneID) {
+    public static void getRingtoneID(int ringtoneID, String ringtoneName) {
+        Log.d(TAG, "getRingtoneID");
         soundPanelIsSet = true;
-        ringToneID = ringtoneID;
+        ringtone = new Ringtone(ringtoneName, ringtoneID, true);
     }
 }

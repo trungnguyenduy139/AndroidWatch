@@ -1,4 +1,4 @@
-package com.example.trungnguyen.androidwatch;
+package com.example.trungnguyen.androidwatch.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -12,26 +12,26 @@ public class AlarmTime implements Parcelable {
     private String mTime;
     private String mContent;
     private boolean isEnable;
-    private int ringtoneId;
-
+    private Ringtone ringtone;
     public AlarmTime() {
 
     }
 
-    public AlarmTime(String time, boolean isEnable, String content, int ringtoneId) {
+    public Ringtone getRingtone() {
+        return ringtone;
+    }
+
+    public void setRingtone(Ringtone ringtone) {
+        this.ringtone = ringtone;
+    }
+
+    public AlarmTime(String time, boolean isEnable, String content, Ringtone ring) {
         this.mTime = time;
         this.isEnable = isEnable;
         this.mContent = content;
-        this.ringtoneId = ringtoneId;
+        this.ringtone = ring;
     }
 
-    public void setRingtoneId(int ringtoneId) {
-        this.ringtoneId = ringtoneId;
-    }
-
-    public int getRingtoneId() {
-        return ringtoneId;
-    }
 
     public String getTime() {
         return mTime;
@@ -67,14 +67,14 @@ public class AlarmTime implements Parcelable {
         dest.writeString(mTime);
         dest.writeString(mContent);
         dest.writeInt(isEnable ? 1 : 0);
-        dest.writeInt(ringtoneId);
+        dest.writeSerializable(ringtone); // Must implements Serializable for this line will work fine
     }
 
     private AlarmTime(Parcel in) {
         mTime = in.readString();
         mContent = in.readString();
         isEnable = in.readInt() != 0;
-        ringtoneId = in.readInt();
+        ringtone = (Ringtone) in.readSerializable();
     }
 
     public static final Creator<AlarmTime> CREATOR = new Creator<AlarmTime>() {

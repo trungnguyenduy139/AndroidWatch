@@ -1,6 +1,4 @@
-package com.example.trungnguyen.androidwatch;
-
-import android.util.Log;
+package com.example.trungnguyen.androidwatch.helpers;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

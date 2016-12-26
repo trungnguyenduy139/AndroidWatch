@@ -1,18 +1,17 @@
-package com.example.trungnguyen.androidwatch;
+package com.example.trungnguyen.androidwatch.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.example.trungnguyen.androidwatch.OnSwitchAlarmChanged;
+import com.example.trungnguyen.androidwatch.R;
+import com.example.trungnguyen.androidwatch.models.AlarmTime;
 
 import java.util.List;
 
@@ -72,43 +71,34 @@ import java.util.List;
 //        }
 //    }
 //}
-public class AlarmClockEditAdapter extends RecyclerView.Adapter<AlarmClockEditAdapter.AlarmViewHolder> {
-
+public class AlarmClockAdapter extends RecyclerView.Adapter<AlarmClockAdapter.AlarmViewHolder> {
     public static final String TAG = AlarmClockAdapter.class.getSimpleName();
+    private OnSwitchAlarmChanged mListener;
     private List<AlarmTime> mAlarms;
     private AlarmViewHolder mViewHolder;
-    private OnRvItemClick mListener;
     Context mContext;
-    //Tạo 1 file Interface rồi khai báo Interface trong rv adapter
-    //Trong hàm onClick trong viewholder khai báo mListener.onListAlarmSelected
-    //Và khai báo 1 hàm SetOnRvClickTenner
-//    public void SetOnRvClickListener(OnRvItemClick listener) {
-//        mListener = listener;
-//    }
-    //Trong fragment or activity implements Interface đó và khai báo, Rv.SetOnRvClickListener(this)
-    //Override abtract method onListAlarmSelected trong fragment or activity
-    //Interface dc override ở đâu thì cần khai báo với Activity or Context của Activity or Fragment đó(dùng getActivity() cho Fragment)
+    View mView;
 
-    //CÓ 2 cách sử dụng, 1 là khai báo hàm SetOnRvClick trong adapter
-    // 2 là trong hàm tạo adapter thêm 1 biến context để khai báo cho interface
-
-    public AlarmClockEditAdapter(List<AlarmTime> alarms) { //Cách 2 khai báo thêm 1 biến trong Hàm tạo adapter
+    public AlarmClockAdapter(List<AlarmTime> alarms) {
         mAlarms = alarms;
-//        mContext = context;
-//        mListener = (OnRvItemClick) mContext;
     }
 
     @Override
-    public AlarmClockEditAdapter.AlarmViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View mView = LayoutInflater.from(parent.getContext()).inflate(R.layout.alarm_clock_edit_item, parent, false);
+    public AlarmClockAdapter.AlarmViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        Log.d(TAG, "onCreateViewHolder");
+        View mView = LayoutInflater.from(parent.getContext()).inflate(R.layout.alarm_clock_item, parent, false);
         mViewHolder = new AlarmViewHolder(mView);
         return mViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(AlarmClockEditAdapter.AlarmViewHolder holder, int position) {
+    public void onBindViewHolder(AlarmClockAdapter.AlarmViewHolder holder, int position) {
         Log.d(TAG, position + "");
         holder.bindAlarm(mAlarms.get(position));
+    }
+
+    public void SetOnSwitchAlarmChanged(OnSwitchAlarmChanged listener) {
+        mListener = listener;
     }
 
     @Override
@@ -116,46 +106,37 @@ public class AlarmClockEditAdapter extends RecyclerView.Adapter<AlarmClockEditAd
         return mAlarms.size();
     }
 
-    //Trong android thường sử dụng cách tạo hàm SetOnClick cho việc xử lí các sự kiện click lên các View
-
-    public void SetOnRvClickListener(OnRvItemClick listener) {
-        mListener = listener;
-        if (mListener == null)
-            Log.d(TAG, "NULL");
-        else Log.d(TAG, "KO NULL");
-    }
-
     public class AlarmViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
 
         public TextView tvTime, tvContent;
-        public ImageView btEdit, btDel;
+        public Switch swAlarm;
 
         public AlarmViewHolder(View itemView) {
             super(itemView);
             tvTime = (TextView) itemView.findViewById(R.id.tvAlarmTime);
             tvContent = (TextView) itemView.findViewById(R.id.tvAlarmConent);
-            btEdit = (ImageView) itemView.findViewById(R.id.btEdit);
-            btDel = (ImageView) itemView.findViewById(R.id.btDel);
-            btEdit.setOnClickListener(this);
-            btDel.setOnClickListener(this);
+            swAlarm = (Switch) itemView.findViewById(R.id.swAlarm);
+            swAlarm.setOnClickListener(this);
         }
 
         public void bindAlarm(AlarmTime time) {
+            Log.d(TAG, "bindAlarm");
             tvTime.setText(time.getTime());
             tvContent.setText(time.getContent());
+            swAlarm.setChecked(time.isEnable());
         }
 
         @Override
         public void onClick(View view) {
-            //Đặt view code cho để biết ta click vào view nào trong
-            //nếu nếu ta click vào btDel ta sẻ gọi hàm với viewCode = 0
-            //còn nếu ta click vào btEdit ta sẻ gọi hàm với viewCode = 1
-            Log.d(TAG, "CALL ON CLICK EDIT ADAPTER");
-            if (view == btDel) {
-                mListener.onListAlarmSelected(getAdapterPosition(), view, 0);
-            } else if (view == btEdit)
-                mListener.onListAlarmSelected(getAdapterPosition(), view, 1);
+            Log.d(TAG, "IN ONCLICK: " + getAdapterPosition() + "");
+            if (swAlarm.isChecked()) {
+                mAlarms.get(getAdapterPosition()).setEnable(true);
+                mListener.onSwitchChanged(getAdapterPosition(), view);
+            } else {
+                mAlarms.get(getAdapterPosition()).setEnable(false);
+                mListener.onSwitchChanged(getAdapterPosition(), view);
+            }
         }
     }
 }

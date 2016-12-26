@@ -1,4 +1,4 @@
-package com.example.trungnguyen.androidwatch;
+package com.example.trungnguyen.androidwatch.fragments;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -21,10 +21,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import com.example.trungnguyen.androidwatch.adapters.AlarmClockAdapter;
+import com.example.trungnguyen.androidwatch.adapters.AlarmClockEditAdapter;
+import com.example.trungnguyen.androidwatch.AlarmReceiver;
+import com.example.trungnguyen.androidwatch.AlarmService;
+import com.example.trungnguyen.androidwatch.OnRvItemClick;
+import com.example.trungnguyen.androidwatch.OnSwitchAlarmChanged;
+import com.example.trungnguyen.androidwatch.R;
+import com.example.trungnguyen.androidwatch.SetupAlarmActivity;
+import com.example.trungnguyen.androidwatch.helpers.ConvertTimeMode;
+import com.example.trungnguyen.androidwatch.helpers.LastStatePreference;
+import com.example.trungnguyen.androidwatch.models.AlarmTime;
+
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -204,7 +213,7 @@ public class AlarmClockFragment extends Fragment
     }
 
     @Override
-    public void onRtClick(int index) {
+    public void onRtClick(int index, boolean isChecked) {
 
     }
 
@@ -214,8 +223,8 @@ public class AlarmClockFragment extends Fragment
         if (alarmTimes.get(index).isEnable()) {
             alarmManager[index] = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
             Intent intentAlarmReceiver = new Intent(getActivity(), AlarmReceiver.class);
-            intentAlarmReceiver.putExtra(RINGTONE, alarmTimes.get(index).getRingtoneId());
-            Log.d(TAG, alarmTimes.get(index).getRingtoneId()+"");
+            intentAlarmReceiver.putExtra(RINGTONE, alarmTimes.get(index).getRingtone().getId());
+            Log.d(TAG, alarmTimes.get(index).getRingtone().getId() + "");
             String[] currentTime = ConvertTimeMode.convertTo24HourMode(alarmTimes.get(index).getTime());
             calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(currentTime[0]));
             calendar.set(Calendar.MINUTE, Integer.parseInt(currentTime[1]));

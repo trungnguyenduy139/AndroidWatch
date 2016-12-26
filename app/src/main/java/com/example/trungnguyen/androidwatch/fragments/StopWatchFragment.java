@@ -1,4 +1,4 @@
-package com.example.trungnguyen.androidwatch;
+package com.example.trungnguyen.androidwatch.fragments;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +16,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.trungnguyen.androidwatch.R;
 
 import java.util.ArrayList;
 

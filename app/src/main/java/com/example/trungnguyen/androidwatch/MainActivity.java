@@ -3,15 +3,12 @@ package com.example.trungnguyen.androidwatch;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
+import com.example.trungnguyen.androidwatch.fragments.AlarmClockFragment;
+import com.example.trungnguyen.androidwatch.fragments.StopWatchFragment;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
-import com.ogaclejapan.smarttablayout.utils.ViewPagerItem;
-import com.ogaclejapan.smarttablayout.utils.ViewPagerItems;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
 
